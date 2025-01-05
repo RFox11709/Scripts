@@ -1,6 +1,6 @@
 -- Create ScreenGui
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "HackGUI"
+ScreenGui.Name = "Val"
 ScreenGui.Parent = game.CoreGui
 
 -- Create Main Frame
