@@ -1,11 +1,13 @@
--- Create ScreenGui
+-- Basic Setup
+local PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "Val"
-ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.Parent = PlayerGui
 
 -- Main Frame
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 400, 0, 250) -- 400x250px
+MainFrame.Size = UDim2.new(0, 400, 0, 250)
 MainFrame.Position = UDim2.new(0.5, -50, 0.4, -55
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -21,8 +23,7 @@ TitleBar.BorderSizePixel = 0
 TitleBar.Parent = MainFrame
 
 local TitleText = Instance.new("TextLabel")
-TitleText.Size = UDim2.new(1, -30, 1, 0)
-TitleText.Position = UDim2.new(0, 10, 0, 0)
+TitleText.Size = UDim2.new(1, 0, 1, 0)
 TitleText.Text = "Hack GUI"
 TitleText.Font = Enum.Font.SourceSansBold
 TitleText.TextSize = 18
@@ -42,43 +43,6 @@ CloseButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 CloseButton.BorderSizePixel = 0
 CloseButton.Parent = TitleBar
 
--- Visual Button
-local VisualButton = Instance.new("TextButton")
-VisualButton.Size = UDim2.new(0, 100, 0, 40)
-VisualButton.Position = UDim2.new(0, 10, 0, 50) -- Left side
-VisualButton.Text = "Visual"
-VisualButton.Font = Enum.Font.SourceSansBold
-VisualButton.TextSize = 16
-VisualButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-VisualButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-VisualButton.BorderSizePixel = 0
-VisualButton.Parent = MainFrame
-
--- Right Side Buttons (hidden initially)
-local RightButton = Instance.new("TextButton")
-RightButton.Size = UDim2.new(0, 100, 0, 40)
-RightButton.Position = UDim2.new(0, 150, 0, 50)
-RightButton.Text = "Option 1"
-RightButton.Font = Enum.Font.SourceSansBold
-RightButton.TextSize = 16
-RightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-RightButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-RightButton.BorderSizePixel = 0
-RightButton.Visible = false
-RightButton.Parent = MainFrame
-
-local RightButton2 = Instance.new("TextButton")
-RightButton2.Size = UDim2.new(0, 100, 0, 40)
-RightButton2.Position = UDim2.new(0, 150, 0, 100)
-RightButton2.Text = "Option 2"
-RightButton2.Font = Enum.Font.SourceSansBold
-RightButton2.TextSize = 16
-RightButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
-RightButton2.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-RightButton2.BorderSizePixel = 0
-RightButton2.Visible = false
-RightButton2.Parent = MainFrame
-
 -- Toggle Button
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 100, 0, 40)
@@ -91,18 +55,90 @@ ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 ToggleButton.BorderSizePixel = 0
 ToggleButton.Parent = ScreenGui
 
--- Button Logic
-ToggleButton.MouseButton1Click:Connect(function()
-    MainFrame.Visible = not MainFrame.Visible
-    ToggleButton.Text = MainFrame.Visible and "Close GUI" or "Open GUI"
+-- Visual Tab Button
+local VisualButton = Instance.new("TextButton")
+VisualButton.Size = UDim2.new(0, 80, 0, 30)
+VisualButton.Position = UDim2.new(0, 10, 0, 40)
+VisualButton.Text = "Visual"
+VisualButton.Font = Enum.Font.SourceSans
+VisualButton.TextSize = 16
+VisualButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+VisualButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+VisualButton.BorderSizePixel = 0
+VisualButton.Visible = false
+VisualButton.Parent = MainFrame
+
+-- Visual Tab Content
+local VisualContent = Instance.new("Frame")
+VisualContent.Size = UDim2.new(0, 300, 0, 200)
+VisualContent.Position = UDim2.new(0, 100, 0, 30)
+VisualContent.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+VisualContent.BorderSizePixel = 0
+VisualContent.Visible = false
+VisualContent.Parent = MainFrame
+
+local VisualLabel = Instance.new("TextLabel")
+VisualLabel.Size = UDim2.new(1, 0, 1, 0)
+VisualLabel.Text = "Visual Options Here"
+VisualLabel.Font = Enum.Font.SourceSans
+VisualLabel.TextSize = 20
+VisualLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+VisualLabel.BackgroundTransparency = 1
+VisualLabel.Parent = VisualContent
+
+-- Make GUI Draggable
+local UIS = game:GetService("UserInputService")
+local dragging, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+TitleBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+TitleBar.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        update(input)
+    end
 end)
 
+-- Toggle Button Functionality
+local guiOpen = false
+ToggleButton.MouseButton1Click:Connect(function()
+    guiOpen = not guiOpen
+    MainFrame.Visible = guiOpen
+    ToggleButton.Text = guiOpen and "Close GUI" or "Open GUI"
+end)
+
+-- Close Button Functionality
 CloseButton.MouseButton1Click:Connect(function()
+    guiOpen = false
     MainFrame.Visible = false
     ToggleButton.Text = "Open GUI"
 end)
 
+-- Visual Tab Functionality
+local visualOpen = false
 VisualButton.MouseButton1Click:Connect(function()
-    RightButton.Visible = not RightButton.Visible
-    RightButton2.Visible = not RightButton2.Visible
+    visualOpen = not visualOpen
+    VisualContent.Visible = visualOpen
+end)
+
+-- Show Visual Button when GUI opens
+MainFrame:GetPropertyChangedSignal("Visible"):Connect(function()
+    VisualButton.Visible = MainFrame.Visible
 end)
