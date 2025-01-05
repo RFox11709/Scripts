@@ -6,7 +6,7 @@ ScreenGui.Parent = game.CoreGui
 -- Create Main Frame
 local MainFrame = Instance.new("Frame")
 MainFrame.Size = UDim2.new(0, 400, 0, 250) -- Width: 400px, Height: 250px
-MainFrame.Position = UDim2.new(0.5, -50, 0.4, -55) -- Centered but lower
+MainFrame.Position = UDim2.new(0.5, -50, 0.4, -55) -- Lower position for mobile
 MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 MainFrame.BorderSizePixel = 0
@@ -44,24 +44,7 @@ CloseButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 CloseButton.BorderSizePixel = 0
 CloseButton.Parent = TitleBar
 
--- Add Buttons
-local Button1 = Instance.new("TextButton")
-Button1.Size = UDim2.new(0, 150, 0, 40) -- Button size
-Button1.Position = UDim2.new(0, 20, 0, 50) -- Position below TitleBar
-Button1.Text = "Run Script 1"
-Button1.Font = Enum.Font.SourceSans
-Button1.TextSize = 16
-Button1.TextColor3 = Color3.fromRGB(255, 255, 255)
-Button1.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-Button1.BorderSizePixel = 0
-Button1.Parent = MainFrame
-
-local Button2 = Button1:Clone()
-Button2.Text = "Run Script 2"
-Button2.Position = UDim2.new(0, 20, 0, 100)
-Button2.Parent = MainFrame
-
--- Create Toggle Button
+-- Add Toggle Button
 local ToggleButton = Instance.new("TextButton")
 ToggleButton.Size = UDim2.new(0, 100, 0, 40) -- Small button
 ToggleButton.Position = UDim2.new(0, 10, 0, 10) -- Top-left corner
@@ -73,35 +56,38 @@ ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 ToggleButton.BorderSizePixel = 0
 ToggleButton.Parent = ScreenGui
 
--- Make GUI Draggable
+-- Make GUI Draggable (Mobile Friendly)
 local UIS = game:GetService("UserInputService")
 local dragToggle = false
-local dragInput, dragStart, startPos
+local dragStart, startPos
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
 
 TitleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    if input.UserInputType == Enum.UserInputType.Touch then
         dragToggle = true
         dragStart = input.Position
         startPos = MainFrame.Position
     end
 end)
 
-TitleBar.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragToggle = false
+TitleBar.InputChanged:Connect(function(input)
+    if dragToggle and input.UserInputType == Enum.UserInputType.Touch then
+        updateInput(input)
     end
 end)
 
-UIS.InputChanged:Connect(function(input)
-    if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-        local delta = input.Position - dragStart
-        MainFrame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
+TitleBar.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragToggle = false
     end
 end)
 
@@ -123,11 +109,3 @@ CloseButton.MouseButton1Click:Connect(function()
     MainFrame.Visible = false
     ToggleButton.Text = "Open GUI"
 end)
-
--- Animations
-MainFrame.Visible = true
-for i = 1, 10 do
-    MainFrame.BackgroundTransparency = MainFrame.BackgroundTransparency - 0.1
-    wait(0.02)
-end
-MainFrame.Visible = false
