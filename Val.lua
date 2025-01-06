@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Creating the main Window
 local Window = Rayfield:CreateWindow({
-   Name = "ValHub",
+   Name = "Ghost's Ultimate Hack GUI",
    Icon = 0,
    LoadingTitle = "Loading...",
    LoadingSubtitle = "Powered by Rayfield",
@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
 local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
 
 -- Custom ESP Configuration
-Sense.whitelist = {}  -- Add any user IDs to whitelist for showing ESP for those players only
+Sense.whitelist = {}
 Sense.sharedSettings = {
     textSize = 13,
     textFont = 2,
@@ -27,17 +27,112 @@ Sense.sharedSettings = {
     useTeamColor = false
 }
 
+Sense.teamSettings = {
+    enemy = {
+        enabled = false,
+        box = true,
+        boxColor = { Color3.new(1, 0, 0), 1 },
+        boxOutline = true,
+        boxOutlineColor = { Color3.new(0, 0, 0), 1 },
+        boxFill = false,
+        boxFillColor = { Color3.new(1, 0, 0), 0.5 },
+        healthBar = false,
+        healthyColor = Color3.new(0, 1, 0),
+        dyingColor = Color3.new(1, 0, 0),
+        healthBarOutline = true,
+        healthBarOutlineColor = { Color3.new(0, 0, 0), 0.5 },
+        healthText = false,
+        healthTextColor = { Color3.new(1, 1, 1), 1 },
+        healthTextOutline = true,
+        healthTextOutlineColor = Color3.new(),
+        box3d = false,
+        box3dColor = { Color3.new(1, 0, 0), 1 },
+        name = true,
+        nameColor = { Color3.new(1, 1, 1), 1 },
+        nameOutline = true,
+        nameOutlineColor = Color3.new(),
+        weapon = false,
+        weaponColor = { Color3.new(1, 1, 1), 1 },
+        weaponOutline = true,
+        weaponOutlineColor = Color3.new(),
+        distance = false,
+        distanceColor = { Color3.new(1, 1, 1), 1 },
+        distanceOutline = true,
+        distanceOutlineColor = Color3.new(),
+        tracer = true,
+        tracerOrigin = "Bottom",
+        tracerColor = { Color3.new(1, 0, 0), 1 },
+        tracerOutline = true,
+        tracerOutlineColor = { Color3.new(0, 0, 0), 1 },
+        offScreenArrow = true,
+        offScreenArrowColor = { Color3.new(1, 1, 1), 1 },
+        offScreenArrowSize = 15,
+        offScreenArrowRadius = 150,
+        offScreenArrowOutline = true,
+        offScreenArrowOutlineColor = { Color3.new(0, 0, 0), 1 },
+        chams = false,
+        chamsVisibleOnly = false,
+        chamsFillColor = { Color3.new(0.2, 0.2, 0.2), 0.5 },
+        chamsOutlineColor = { Color3.new(1, 0, 0), 0 }
+    },
+    friendly = {
+        enabled = false,
+        box = true,
+        boxColor = { Color3.new(0, 1, 0), 1 },
+        boxOutline = true,
+        boxOutlineColor = { Color3.new(0, 0, 0), 1 },
+        boxFill = false,
+        boxFillColor = { Color3.new(0, 1, 0), 0.5 },
+        healthBar = false,
+        healthyColor = Color3.new(0, 1, 0),
+        dyingColor = Color3.new(1, 0, 0),
+        healthBarOutline = true,
+        healthBarOutlineColor = { Color3.new(0, 0, 0), 0.5 },
+        healthText = false,
+        healthTextColor = { Color3.new(1, 1, 1), 1 },
+        healthTextOutline = true,
+        healthTextOutlineColor = Color3.new(),
+        box3d = false,
+        box3dColor = { Color3.new(0, 1, 0), 1 },
+        name = true,
+        nameColor = { Color3.new(1, 1, 1), 1 },
+        nameOutline = true,
+        nameOutlineColor = Color3.new(),
+        weapon = false,
+        weaponColor = { Color3.new(1, 1, 1), 1 },
+        weaponOutline = true,
+        weaponOutlineColor = Color3.new(),
+        distance = false,
+        distanceColor = { Color3.new(1, 1, 1), 1 },
+        distanceOutline = true,
+        distanceOutlineColor = Color3.new(),
+        tracer = true,
+        tracerOrigin = "Bottom",
+        tracerColor = { Color3.new(0, 1, 0), 1 },
+        tracerOutline = true,
+        tracerOutlineColor = { Color3.new(0, 0, 0), 1 },
+        offScreenArrow = true,
+        offScreenArrowColor = { Color3.new(1, 1, 1), 1 },
+        offScreenArrowSize = 15,
+        offScreenArrowRadius = 150,
+        offScreenArrowOutline = true,
+        offScreenArrowOutlineColor = { Color3.new(0, 0, 0), 1 },
+        chams = false,
+        chamsVisibleOnly = false,
+        chamsFillColor = { Color3.new(0.2, 0.2, 0.2), 0.5 },
+        chamsOutlineColor = { Color3.new(0, 1, 0), 0 }
+    }
+}
+
 -- Player Control Tab
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 
 -- Walk Speed Slider
 local WalkSpeedSlider = PlayerTab:CreateSlider({
    Name = "Walk Speed",
-   Min = 16,  -- Default walk speed in Roblox
-   Max = 200, -- Max speed you want
-   Default = 100,  -- Default value
-   Increment = 1,  -- Increment value for the slider
-   Flag = "WalkSpeedSlider",
+   Min = 16,
+   Max = 200,
+   Default = 100,
    Callback = function(Value)
       local player = game.Players.LocalPlayer
       if player and player.Character and player.Character:FindFirstChild("Humanoid") then
@@ -49,11 +144,9 @@ local WalkSpeedSlider = PlayerTab:CreateSlider({
 -- Jump Power Slider
 local JumpPowerSlider = PlayerTab:CreateSlider({
    Name = "Jump Power",
-   Min = 50,  -- Default jump power in Roblox
-   Max = 200, -- Max jump power
-   Default = 100,  -- Default value
-   Increment = 1,  -- Increment value for the slider
-   Flag = "JumpPowerSlider",
+   Min = 50,
+   Max = 200,
+   Default = 100,
    Callback = function(Value)
       local player = game.Players.LocalPlayer
       if player and player.Character and player.Character:FindFirstChild("Humanoid") then
@@ -62,84 +155,52 @@ local JumpPowerSlider = PlayerTab:CreateSlider({
    end
 })
 
--- Walk Speed Toggle Button
-local WalkSpeedToggle = PlayerTab:CreateToggle({
-   Name = "Enable Walk Speed",
-   CurrentValue = true,
-   Flag = "WalkSpeedToggle",
-   Callback = function(Value)
-      if not Value then
-         -- Reset walk speed to default when disabled
-         local player = game.Players.LocalPlayer
-         if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-            player.Character.Humanoid.WalkSpeed = 16  -- Default walk speed
-         end
-      end
-   end
-})
-
--- Jump Power Toggle Button
-local JumpPowerToggle = PlayerTab:CreateToggle({
-   Name = "Enable Jump Power",
-   CurrentValue = true,
-   Flag = "JumpPowerToggle",
-   Callback = function(Value)
-      if not Value then
-         -- Reset jump power to default when disabled
-         local player = game.Players.LocalPlayer
-         if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-            player.Character.Humanoid.JumpPower = 50  -- Default jump power
-         end
-      end
-   end
-})
-
--- Fly Toggle Button (Fixed fly functionality)
+-- Fly Toggle Button
 local FlyToggle = PlayerTab:CreateToggle({
    Name = "Fly",
    CurrentValue = false,
-   Flag = "FlyToggle", -- Flag for configuration saving
+   Flag = "FlyToggle", 
    Callback = function(Value)
       local player = game.Players.LocalPlayer
       if player and player.Character then
+         local humanoid = player.Character:FindFirstChild("Humanoid")
          if Value then
-            -- Add flying method (not floating)
-            local humanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
+            -- Create a BodyGyro to keep the player steady while flying
             local bodyGyro = Instance.new("BodyGyro")
-            local bodyVelocity = Instance.new("BodyVelocity")
             bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
-            bodyGyro.CFrame = humanoidRootPart.CFrame
-            bodyGyro.Parent = humanoidRootPart
+            bodyGyro.CFrame = player.Character.HumanoidRootPart.CFrame
+            bodyGyro.P = 9e4
+            bodyGyro.D = 10
+            bodyGyro.Parent = player.Character.HumanoidRootPart
+            
+            -- Add BodyVelocity for flying
+            local bodyVelocity = Instance.new("BodyVelocity")
             bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
-            bodyVelocity.Velocity = Vector3.new(0, 0, 0)  -- Start with no velocity
-            bodyVelocity.Parent = humanoidRootPart
-            humanoidRootPart.Velocity = Vector3.new(0, 0, 0) -- Set initial velocity
-            -- Keep flying until toggled off
-            game:GetService("RunService").Heartbeat:Connect(function()
-               if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                  bodyVelocity.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 50 -- Move forward
-               end
-            end)
+            bodyVelocity.Velocity = Vector3.new(0, 50, 0)
+            bodyVelocity.Parent = player.Character.HumanoidRootPart
          else
-            -- Remove flying elements if toggled off
-            local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
-            if humanoidRootPart then
-               local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
-               local bodyVelocity = humanoidRootPart:FindFirstChildOfClass("BodyVelocity")
-               if bodyGyro then bodyGyro:Destroy() end
-               if bodyVelocity then bodyVelocity:Destroy() end
+            -- Stop flying (Remove BodyVelocity and BodyGyro)
+            local bodyVelocity = player.Character:FindFirstChildOfClass("BodyVelocity")
+            if bodyVelocity then
+               bodyVelocity:Destroy()
+            end
+            local bodyGyro = player.Character:FindFirstChildOfClass("BodyGyro")
+            if bodyGyro then
+               bodyGyro:Destroy()
             end
          end
       end
    end
 })
 
--- Fullbright Toggle Button
+-- Visual Tab
 local VisualTab = Window:CreateTab("Visual", 4483362458)
+
+-- Fullbright Toggle Button
 local FullbrightToggle = VisualTab:CreateToggle({
    Name = "Fullbright",
    CurrentValue = false,
-   Flag = "FullbrightToggle",
+   Flag = "FullbrightToggle", 
    Callback = function(Value)
       if Value then
          -- Activate Fullbright (set lighting to maximum)
