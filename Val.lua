@@ -2,10 +2,10 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Creating the main Window
 local Window = Rayfield:CreateWindow({
-   Name = "Val",
+   Name = "ValHub",
    Icon = 0,
    LoadingTitle = "Loading...",
-   LoadingSubtitle = "Made by Ghost",
+   LoadingSubtitle = "Powered by Rayfield",
    Theme = "Default",
    ConfigurationSaving = {
       Enabled = true,
@@ -14,32 +14,87 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
+-- Load the Sense library for ESP
+local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
+
+-- Custom ESP Configuration
+Sense.whitelist = {}  -- Add any user IDs to whitelist for showing ESP for those players only
+Sense.sharedSettings = {
+    textSize = 13,
+    textFont = 2,
+    limitDistance = false,
+    maxDistance = 150,
+    useTeamColor = false
+}
+
 -- Player Control Tab
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 
--- Walk Speed Changer Button
-local WalkSpeedButton = PlayerTab:CreateButton({
-   Name = "Walk Speed Changer",
-   Callback = function()
+-- Walk Speed Slider
+local WalkSpeedSlider = PlayerTab:CreateSlider({
+   Name = "Walk Speed",
+   Min = 16,  -- Default walk speed in Roblox
+   Max = 200, -- Max speed you want
+   Default = 100,  -- Default value
+   Increment = 1,  -- Increment value for the slider
+   Flag = "WalkSpeedSlider",
+   Callback = function(Value)
       local player = game.Players.LocalPlayer
       if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-         player.Character.Humanoid.WalkSpeed = 100  -- Change to your desired speed
+         player.Character.Humanoid.WalkSpeed = Value
       end
    end
 })
 
--- Jump Power Changer Button
-local JumpPowerButton = PlayerTab:CreateButton({
-   Name = "Jump Power Changer",
-   Callback = function()
+-- Jump Power Slider
+local JumpPowerSlider = PlayerTab:CreateSlider({
+   Name = "Jump Power",
+   Min = 50,  -- Default jump power in Roblox
+   Max = 200, -- Max jump power
+   Default = 100,  -- Default value
+   Increment = 1,  -- Increment value for the slider
+   Flag = "JumpPowerSlider",
+   Callback = function(Value)
       local player = game.Players.LocalPlayer
       if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-         player.Character.Humanoid.JumpPower = 100  -- Change to your desired jump power
+         player.Character.Humanoid.JumpPower = Value
       end
    end
 })
 
--- Fly Toggle Button
+-- Walk Speed Toggle Button
+local WalkSpeedToggle = PlayerTab:CreateToggle({
+   Name = "Enable Walk Speed",
+   CurrentValue = true,
+   Flag = "WalkSpeedToggle",
+   Callback = function(Value)
+      if not Value then
+         -- Reset walk speed to default when disabled
+         local player = game.Players.LocalPlayer
+         if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = 16  -- Default walk speed
+         end
+      end
+   end
+})
+
+-- Jump Power Toggle Button
+local JumpPowerToggle = PlayerTab:CreateToggle({
+   Name = "Enable Jump Power",
+   CurrentValue = true,
+   Flag = "JumpPowerToggle",
+   Callback = function(Value)
+      if not Value then
+         -- Reset jump power to default when disabled
+         local player = game.Players.LocalPlayer
+         if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = 50  -- Default jump power
+         end
+      end
+   end
+})
+
+-- Fly Toggle Button (Fixed fly functionality)
 local FlyToggle = PlayerTab:CreateToggle({
    Name = "Fly",
    CurrentValue = false,
@@ -48,30 +103,43 @@ local FlyToggle = PlayerTab:CreateToggle({
       local player = game.Players.LocalPlayer
       if player and player.Character then
          if Value then
-            -- Simple flying method
+            -- Add flying method (not floating)
+            local humanoidRootPart = player.Character:WaitForChild("HumanoidRootPart")
+            local bodyGyro = Instance.new("BodyGyro")
             local bodyVelocity = Instance.new("BodyVelocity")
+            bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+            bodyGyro.CFrame = humanoidRootPart.CFrame
+            bodyGyro.Parent = humanoidRootPart
             bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
-            bodyVelocity.Velocity = Vector3.new(0, 50, 0)
-            bodyVelocity.Parent = player.Character:WaitForChild("HumanoidRootPart")
+            bodyVelocity.Velocity = Vector3.new(0, 0, 0)  -- Start with no velocity
+            bodyVelocity.Parent = humanoidRootPart
+            humanoidRootPart.Velocity = Vector3.new(0, 0, 0) -- Set initial velocity
+            -- Keep flying until toggled off
+            game:GetService("RunService").Heartbeat:Connect(function()
+               if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                  bodyVelocity.Velocity = player.Character.HumanoidRootPart.CFrame.LookVector * 50 -- Move forward
+               end
+            end)
          else
-            -- Remove flying if toggled off
-            local bodyVelocity = player.Character:FindFirstChildOfClass("BodyVelocity")
-            if bodyVelocity then
-               bodyVelocity:Destroy()
+            -- Remove flying elements if toggled off
+            local humanoidRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+               local bodyGyro = humanoidRootPart:FindFirstChildOfClass("BodyGyro")
+               local bodyVelocity = humanoidRootPart:FindFirstChildOfClass("BodyVelocity")
+               if bodyGyro then bodyGyro:Destroy() end
+               if bodyVelocity then bodyVelocity:Destroy() end
             end
          end
       end
    end
 })
 
--- Visual Tab
-local VisualTab = Window:CreateTab("Visual", 4483362458)
-
 -- Fullbright Toggle Button
+local VisualTab = Window:CreateTab("Visual", 4483362458)
 local FullbrightToggle = VisualTab:CreateToggle({
    Name = "Fullbright",
    CurrentValue = false,
-   Flag = "FullbrightToggle", -- Flag for configuration saving
+   Flag = "FullbrightToggle",
    Callback = function(Value)
       if Value then
          -- Activate Fullbright (set lighting to maximum)
@@ -87,38 +155,24 @@ local FullbrightToggle = VisualTab:CreateToggle({
    end
 })
 
--- Player ESP Toggle Button
+-- Player ESP Toggle Button (Using Sense)
 local ESPToggle = VisualTab:CreateToggle({
    Name = "Player ESP",
    CurrentValue = false,
-   Flag = "ESPToggle", -- Flag for configuration saving
+   Flag = "ESPToggle", 
    Callback = function(Value)
-      local player = game.Players.LocalPlayer
-      for _, v in pairs(game.Players:GetPlayers()) do
-         if v ~= player then
-            -- Create ESP for other players
-            if Value then
-               local esp = Instance.new("BillboardGui")
-               esp.Parent = v.Character:WaitForChild("Head")
-               esp.Adornee = v.Character:WaitForChild("Head")
-               esp.Size = UDim2.new(0, 100, 0, 50)
-               esp.StudsOffset = Vector3.new(0, 2, 0)
-               esp.AlwaysOnTop = true
-               local textLabel = Instance.new("TextLabel")
-               textLabel.Parent = esp
-               textLabel.Text = v.Name
-               textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-               textLabel.BackgroundTransparency = 1
-               textLabel.Size = UDim2.new(1, 0, 1, 0)
-            else
-               -- Remove ESP
-               for _, gui in pairs(v.Character:WaitForChild("Head"):GetChildren()) do
-                  if gui:IsA("BillboardGui") then
-                     gui:Destroy()
-                  end
-               end
-            end
-         end
+      -- Update ESP configuration based on toggle
+      Sense.teamSettings.enemy.enabled = Value
+      Sense.teamSettings.enemy.box = true
+      Sense.teamSettings.enemy.boxColor = { Color3.new(1, 0, 0), 1 }
+      
+      -- Load or unload the ESP based on the toggle value
+      if Value then
+         Sense.Load()
+      else
+         Sense.Unload()
       end
    end
 })
+
+-- Add more features or tabs if needed
