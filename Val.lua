@@ -1,124 +1,94 @@
+-- Load Rayfield Library
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
+if not Rayfield then
+    error("Failed to load Rayfield library.")
+end
 
--- Main Window Configuration
+-- Create Main Window
 local Window = Rayfield:CreateWindow({
-    Name = "Ghost's Ultimate Hack GUI",
-    Icon = 0,
-    LoadingTitle = "Loading...",
+    Name = "Test GUI",
+    LoadingTitle = "Loading Your GUI...",
     LoadingSubtitle = "Powered by Rayfield",
-    Theme = "Default",
     ConfigurationSaving = {
         Enabled = true,
-        FolderName = "GhostScripts",
-        FileName = "HackGUI"
+        FolderName = "RayfieldSaves",
+        FileName = "TestGUIConfig"
+    },
+    Discord = {
+        Enabled = false,
+        Invite = "noinvite",
+        RememberJoins = false
+    },
+    KeySystem = false -- Disable key system for simplicity
+})
+
+-- Create Tabs
+local PlayerTab = Window:CreateTab("Player", 4483362458) -- Use a valid Roblox asset ID for the icon
+
+-- Add a Slider to Control Walk Speed
+local WalkSpeedSlider = PlayerTab:CreateSlider({
+    Name = "Walk Speed",
+    Min = 16, -- Minimum speed (default Roblox speed)
+    Max = 200, -- Maximum speed
+    Default = 16, -- Default slider position
+    Callback = function(Value)
+        -- Update player's WalkSpeed
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = Value
+        else
+            warn("Character or Humanoid not found!")
+        end
+    end
+})
+
+-- Add a Slider to Control Jump Power
+local JumpPowerSlider = PlayerTab:CreateSlider({
+    Name = "Jump Power",
+    Min = 50, -- Minimum jump power
+    Max = 300, -- Maximum jump power
+    Default = 50, -- Default slider position
+    Callback = function(Value)
+        -- Update player's JumpPower
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.JumpPower = Value
+        else
+            warn("Character or Humanoid not found!")
+        end
+    end
+})
+
+-- Add a Button to Reset Walk Speed and Jump Power
+local ResetButton = PlayerTab:CreateButton({
+    Name = "Reset to Default",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.WalkSpeed = 16 -- Reset to default speed
+            player.Character.Humanoid.JumpPower = 50 -- Reset to default jump power
+        else
+            warn("Character or Humanoid not found!")
+        end
+    end
+})
+
+-- Add an Info Tab
+local InfoTab = Window:CreateTab("Info", 4483362458) -- Use another valid icon ID
+InfoTab:CreateLabel("This is a demo GUI created using Rayfield.")
+
+-- Initialize Rayfield
+Rayfield:Notify({
+    Title = "Test GUI Loaded",
+    Content = "Your GUI is ready to use!",
+    Duration = 5,
+    Image = 4483362458, -- Icon ID
+    Actions = {
+        Okay = {
+            Name = "Okay",
+            Callback = function()
+                print("GUI loaded successfully!")
+            end
+        }
     }
 })
-
--- Sense ESP Default Configurations
-Sense.whitelist = {}
-Sense.sharedSettings = {
-    textSize = 13,
-    textFont = 2,
-    limitDistance = false,
-    maxDistance = 150,
-    useTeamColor = false
-}
-Sense.teamSettings.enemy.enabled = false
-Sense.teamSettings.friendly.enabled = false
-
--- Utility Functions
-local function modifyHumanoidProperty(property, value)
-    local player = game.Players.LocalPlayer
-    if player and player.Character and player.Character:FindFirstChild("Humanoid") then
-        player.Character.Humanoid[property] = value
-    end
-end
-
-local function toggleFullbright(isEnabled)
-    local lighting = game.Lighting
-    if isEnabled then
-        lighting.Brightness = 2
-        lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
-        lighting.Ambient = Color3.fromRGB(255, 255, 255)
-    else
-        lighting.Brightness = 1
-        lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-        lighting.Ambient = Color3.fromRGB(128, 128, 128)
-    end
-end
-
--- Tabs and Features
--- Player Control Tab
-local PlayerTab = Window:CreateTab("Player", 4483362458)
-
-PlayerTab:CreateSlider({
-    Name = "Walk Speed",
-    Min = 16,
-    Max = 200,
-    Default = 100,
-    Callback = function(value) modifyHumanoidProperty("WalkSpeed", value) end
-})
-
-PlayerTab:CreateSlider({
-    Name = "Jump Power",
-    Min = 50,
-    Max = 200,
-    Default = 100,
-    Callback = function(value) modifyHumanoidProperty("JumpPower", value) end
-})
-
-PlayerTab:CreateToggle({
-    Name = "Fly",
-    CurrentValue = false,
-    Flag = "FlyToggle",
-    Callback = function(value)
-        local player = game.Players.LocalPlayer
-        if player and player.Character then
-            local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
-            if value and rootPart then
-                -- Create BodyGyro and BodyVelocity
-                local bodyGyro = Instance.new("BodyGyro", rootPart)
-                bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
-                bodyGyro.P = 9e4
-
-                local bodyVelocity = Instance.new("BodyVelocity", rootPart)
-                bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
-                bodyVelocity.Velocity = Vector3.new(0, 50, 0)
-            else
-                -- Remove BodyGyro and BodyVelocity
-                for _, instance in ipairs(rootPart:GetChildren()) do
-                    if instance:IsA("BodyGyro") or instance:IsA("BodyVelocity") then
-                        instance:Destroy()
-                    end
-                end
-            end
-        end
-    end
-})
-
--- Visual Tab
-local VisualTab = Window:CreateTab("Visual", 4483362458)
-
-VisualTab:CreateToggle({
-    Name = "Fullbright",
-    CurrentValue = false,
-    Flag = "FullbrightToggle",
-    Callback = toggleFullbright
-})
-
-VisualTab:CreateToggle({
-    Name = "Player ESP",
-    CurrentValue = false,
-    Flag = "ESPToggle",
-    Callback = function(value)
-        Sense.teamSettings.enemy.enabled = value
-        if value then
-            Sense.Load()
-        else
-            Sense.Unload()
-        end
-    end
-})
-
--- Add additional features here if needed
