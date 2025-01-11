@@ -125,7 +125,50 @@ Sense.teamSettings = {
 }
 
 -- Player Control Tab
-local PlayerTab = Window:CreateTab("Player", 4483362458)
+local PlayerTab = Window:CreateTab("Local Player", 4483362458)
+
+-- Dropdown to list all players in the server
+local PlayerList = {}
+for _, player in pairs(game.Players:GetPlayers()) do
+   table.insert(PlayerList, player.Name)
+end
+
+local PlayerDropdown = PlayerTab:CreateDropdown({
+   Name = "Choose Player to Follow",
+   Options = PlayerList,
+   CurrentOption = PlayerList[1],  -- Default option
+   Flag = "PlayerDropdown",  -- Unique flag for saving configuration
+   Callback = function(selectedPlayer)
+      selectedPlayer = game.Players:FindFirstChild(selectedPlayer)
+      if selectedPlayer then
+         followPlayer(selectedPlayer)
+      else
+         Rayfield:Notify({
+            Title = "Player Not Found",
+            Content = "Ensure the player name is correct.",
+            Duration = 5,
+         })
+      end
+   end
+})
+
+-- Follow Button
+local FollowButton = PlayerTab:CreateButton({
+   Name = "Teleport and Follow",
+   Callback = function()
+      local selectedPlayer = PlayerDropdown:GetSelectedOption()
+      local targetPlayer = game.Players:FindFirstChild(selectedPlayer)
+      if targetPlayer then
+         followPlayer(targetPlayer)
+      else
+         Rayfield:Notify({
+            Title = "Error",
+            Content = "Something went wrong! Player may not exist.",
+            Duration = 5,
+         })
+      end
+   end
+})
 
 
 -- Visual Tab
@@ -190,24 +233,5 @@ local function followPlayer(targetPlayer)
    end)
 end
 
--- Bot Tab
-local BotTab = Window:CreateTab("Bot", 4483362458)
-
--- Player Follower Bot Button
-local FollowButton = BotTab:CreateButton({
-   Name = "Follow a Player",
-   Callback = function()
-      local playerName = game:GetService("Players"):FindFirstChild("PlayerNameHere") -- Replace with dynamic input
-      if playerName then
-         followPlayer(playerName)
-      else
-         Rayfield:Notify({
-            Title = "Player Not Found",
-            Content = "Ensure the player name is correct.",
-            Duration = 5,
-         })
-      end
-   end
-})
-
 -- Done integrating!
+
