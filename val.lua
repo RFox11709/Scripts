@@ -171,4 +171,43 @@ local ESPToggle = VisualTab:CreateToggle({
    end
 })
 
--- Add more features or tabs if needed
+-- Insert this at the end of your current script
+
+-- Utility Functions
+local function followPlayer(targetPlayer)
+   local player = game.Players.LocalPlayer
+   local character = player.Character or player.CharacterAdded:Wait()
+   local humanoid = character:WaitForChild("Humanoid")
+
+   game:GetService("RunService").RenderStepped:Connect(function()
+      if targetPlayer and targetPlayer.Character and humanoid and humanoid.Health > 0 then
+         local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+         local playerRoot = character:FindFirstChild("HumanoidRootPart")
+         if targetRoot and playerRoot then
+            playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -5)
+         end
+      end
+   end)
+end
+
+-- Bot Tab
+local BotTab = Window:CreateTab("Bot", 4483362458)
+
+-- Player Follower Bot Button
+local FollowButton = BotTab:CreateButton({
+   Name = "Follow a Player",
+   Callback = function()
+      local playerName = game:GetService("Players"):FindFirstChild("PlayerNameHere") -- Replace with dynamic input
+      if playerName then
+         followPlayer(playerName)
+      else
+         Rayfield:Notify({
+            Title = "Player Not Found",
+            Content = "Ensure the player name is correct.",
+            Duration = 5,
+         })
+      end
+   end
+})
+
+-- Done integrating!
