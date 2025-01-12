@@ -22,6 +22,52 @@ visualTab.newToggle("Fullbright", "Toggle full brightness and shadows.", true, f
     end
 end)
 
+local Lighting = game:GetService("Lighting")
+
+-- Bloom Effect Toggle
+visualTab.newToggle("Bloom Effect", "Toggle Bloom (makes everything glow)", false, function(toggleState)
+    if toggleState then
+        local bloom = Instance.new("BloomEffect", Lighting)
+        bloom.Name = "CustomBloom"
+        bloom.Intensity = 1.5 -- Customize as needed
+        bloom.Size = 24
+        bloom.Threshold = 2
+    else
+        if Lighting:FindFirstChild("CustomBloom") then
+            Lighting.CustomBloom:Destroy()
+        end
+    end
+end)
+
+-- ColorCorrection Toggle
+visualTab.newToggle("Color Correction", "Toggle Color Correction (adjusts saturation & contrast)", false, function(toggleState)
+    if toggleState then
+        local cc = Instance.new("ColorCorrectionEffect", Lighting)
+        cc.Name = "CustomCC"
+        cc.Brightness = 0.1
+        cc.Contrast = 0.3
+        cc.Saturation = 1.5
+    else
+        if Lighting:FindFirstChild("CustomCC") then
+            Lighting.CustomCC:Destroy()
+        end
+    end
+end)
+
+-- SunRays Toggle
+visualTab.newToggle("Sun Rays", "Toggle Sun Rays (adds light beams from the sun)", false, function(toggleState)
+    if toggleState then
+        local sunRays = Instance.new("SunRaysEffect", Lighting)
+        sunRays.Name = "CustomSunRays"
+        sunRays.Intensity = 0.2 -- Adjust as needed
+        sunRays.Spread = 1
+    else
+        if Lighting:FindFirstChild("CustomSunRays") then
+            Lighting.CustomSunRays:Destroy()
+        end
+    end
+end)
+
 -- Create the "Player" tab
 local playerTab = DrRayLibrary.newTab("Player", "ImageIdLogoHere")
 
