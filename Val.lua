@@ -1,6 +1,9 @@
 -- Load DrRay Library
 local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
-local window = DrRayLibrary:Load("Val", "Default")
+local window = DrRayLibrary:Load("My Cool GUI", "Default")
+
+-- Open the GUI when the script runs
+window:Open()
 
 -- Local Player Tab
 local localPlayerTab = window.newTab("Local Player", "Default")
