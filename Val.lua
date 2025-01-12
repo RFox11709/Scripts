@@ -29,9 +29,9 @@ visualTab.newToggle("Bloom Effect", "Toggle Bloom (makes everything glow)", fals
     if toggleState then
         local bloom = Instance.new("BloomEffect", Lighting)
         bloom.Name = "CustomBloom"
-        bloom.Intensity = 1.5 -- Customize as needed
-        bloom.Size = 24
-        bloom.Threshold = 2
+        bloom.Intensity = 4 -- Customize as needed
+        bloom.Size = 56
+        bloom.Threshold = 1
     else
         if Lighting:FindFirstChild("CustomBloom") then
             Lighting.CustomBloom:Destroy()
@@ -59,8 +59,8 @@ visualTab.newToggle("Sun Rays", "Toggle Sun Rays (adds light beams from the sun)
     if toggleState then
         local sunRays = Instance.new("SunRaysEffect", Lighting)
         sunRays.Name = "CustomSunRays"
-        sunRays.Intensity = 0.2 -- Adjust as needed
-        sunRays.Spread = 1
+        sunRays.Intensity = 1 -- Adjust as needed
+        sunRays.Spread = 0.5
     else
         if Lighting:FindFirstChild("CustomSunRays") then
             Lighting.CustomSunRays:Destroy()
