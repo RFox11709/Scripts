@@ -1,12 +1,12 @@
 -- Load DrRay Library
 local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
-local window = DrRayLibrary:Load("My Cool GUI", "Default")
+local window = DrRayLibrary:Load("Ghost's Epic GUI", "Default")
 
--- Open the GUI when the script runs
+-- Open GUI when the script runs
 window:Open()
 
 -- Local Player Tab
-local localPlayerTab = window.newTab("Local Player", "Default")
+local localPlayerTab = window:newTab("Local Player", "Default")
 
 -- Variables
 local playerService = game:GetService("Players")
@@ -16,7 +16,7 @@ local playerList = {}
 -- Function to refresh player list
 local function refreshPlayers()
     playerList = {}
-    for _, player in pairs(playerService:GetPlayers()) do
+    for _, player in ipairs(playerService:GetPlayers()) do
         if player ~= localPlayer then
             table.insert(playerList, player.Name)
         end
@@ -28,18 +28,18 @@ refreshPlayers()
 
 -- Dropdown for Player Selection
 local selectedPlayer
-local dropdown = localPlayerTab.newDropdown("Select Player", "Choose a player to teleport to.", playerList, function(playerName)
+local dropdown = localPlayerTab:newDropdown("Select Player", "Choose a player to teleport to.", playerList, function(playerName)
     selectedPlayer = playerName
 end)
 
 -- Refresh Button
-localPlayerTab.newButton("Refresh Player List", "Updates the player list in the dropdown.", function()
+localPlayerTab:newButton("Refresh Player List", "Updates the player list in the dropdown.", function()
     refreshPlayers()
     dropdown:SetOptions(playerList) -- Update dropdown options
 end)
 
 -- Teleport Button
-localPlayerTab.newButton("Teleport to Player", "Move to the selected player.", function()
+localPlayerTab:newButton("Teleport to Player", "Move to the selected player.", function()
     if selectedPlayer then
         local targetPlayer = playerService:FindFirstChild(selectedPlayer)
         if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -53,12 +53,12 @@ localPlayerTab.newButton("Teleport to Player", "Move to the selected player.", f
 end)
 
 -- Visual Tab
-local visualTab = window.newTab("Visual", "Default")
+local visualTab = window:newTab("Visual", "Default")
 
 -- Player ESP Toggle
-visualTab.newToggle("Player ESP", "Highlight players with boxes.", false, function(state)
+visualTab:newToggle("Player ESP", "Highlight players with boxes.", false, function(state)
     if state then
-        for _, player in pairs(playerService:GetPlayers()) do
+        for _, player in ipairs(playerService:GetPlayers()) do
             if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
                 local espBox = Instance.new("BoxHandleAdornment")
                 espBox.Adornee = player.Character.HumanoidRootPart
@@ -71,7 +71,7 @@ visualTab.newToggle("Player ESP", "Highlight players with boxes.", false, functi
             end
         end
     else
-        for _, player in pairs(playerService:GetPlayers()) do
+        for _, player in ipairs(playerService:GetPlayers()) do
             if player.Character and player.Character:GetAttribute("ESP") then
                 player.Character:GetAttribute("ESP"):Destroy()
                 player.Character:SetAttribute("ESP", nil)
@@ -81,19 +81,20 @@ visualTab.newToggle("Player ESP", "Highlight players with boxes.", false, functi
 end)
 
 -- Fullbright Toggle
-visualTab.newToggle("Fullbright", "Brighten the entire map.", false, function(state)
+visualTab:newToggle("Fullbright", "Brighten the entire map.", false, function(state)
+    local lighting = game:GetService("Lighting")
     if state then
-        game:GetService("Lighting").Brightness = 2
-        game:GetService("Lighting").GlobalShadows = false
-        game:GetService("Lighting").Ambient = Color3.new(1, 1, 1)
+        lighting.Brightness = 2
+        lighting.GlobalShadows = false
+        lighting.Ambient = Color3.new(1, 1, 1)
     else
-        game:GetService("Lighting").Brightness = 1
-        game:GetService("Lighting").GlobalShadows = true
-        game:GetService("Lighting").Ambient = Color3.new(0.5, 0.5, 0.5)
+        lighting.Brightness = 1
+        lighting.GlobalShadows = true
+        lighting.Ambient = Color3.new(0.5, 0.5, 0.5)
     end
 end)
 
 -- Customize Theme (Optional)
-local mainColor = Color3.fromRGB(50, 50, 200)
-local secondaryColor = Color3.fromRGB(200, 50, 50)
+local mainColor = Color3.fromRGB(0, 128, 255)
+local secondaryColor = Color3.fromRGB(255, 85, 0)
 window:SetTheme(mainColor, secondaryColor)
