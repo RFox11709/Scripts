@@ -1,169 +1,96 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- Load DrRay Library
+local DrRayLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/AZYsGithub/DrRay-UI-Library/main/DrRay.lua"))()
+local window = DrRayLibrary:Load("Val", "Default")
 
--- Creating the main Window
-local Window = Rayfield:CreateWindow({
-   Name = "Val",
-   Icon = "rbxassetid://4483362458", -- Replace with a valid icon asset ID
-   LoadingTitle = "Loading...",
-   LoadingSubtitle = "Powered by Rayfield",
-   Theme = "Default",
-   ConfigurationSaving = {
-      Enabled = true,
-      FolderName = "GhostScripts",
-      FileName = "ValGUI"
-   }
-})
+-- Local Player Tab
+local localPlayerTab = window.newTab("Local Player", "Default")
 
--- Load the Sense library for ESP
-local Sense = loadstring(game:HttpGet('https://sirius.menu/sense'))()
+-- Variables
+local playerService = game:GetService("Players")
+local localPlayer = playerService.LocalPlayer
+local playerList = {}
 
--- Custom ESP Configuration
-Sense.whitelist = {}
-Sense.sharedSettings = {
-    textSize = 13,
-    textFont = 2,
-    limitDistance = false,
-    maxDistance = 150,
-    useTeamColor = false
-}
-
-Sense.teamSettings = {
-    enemy = {
-        enabled = false,
-        box = true,
-        boxColor = { Color3.new(1, 0, 0), 1 },
-        boxOutline = true,
-        boxOutlineColor = { Color3.new(0, 0, 0), 1 },
-        name = true,
-        nameColor = { Color3.new(1, 1, 1), 1 },
-        nameOutline = true,
-        nameOutlineColor = Color3.new(),
-        tracer = true,
-        tracerOrigin = "Bottom",
-        tracerColor = { Color3.new(1, 0, 0), 1 },
-        tracerOutline = true,
-        tracerOutlineColor = { Color3.new(0, 0, 0), 1 }
-    },
-    friendly = {
-        enabled = false,
-        box = true,
-        boxColor = { Color3.new(0, 1, 0), 1 },
-        boxOutline = true,
-        boxOutlineColor = { Color3.new(0, 0, 0), 1 },
-        name = true,
-        nameColor = { Color3.new(1, 1, 1), 1 },
-        nameOutline = true,
-        nameOutlineColor = Color3.new(),
-        tracer = true,
-        tracerOrigin = "Bottom",
-        tracerColor = { Color3.new(0, 1, 0), 1 },
-        tracerOutline = true,
-        tracerOutlineColor = { Color3.new(0, 0, 0), 1 }
-    }
-}
-
--- Utility Function: Follow Player
-local function followPlayer(targetPlayer)
-   local player = game.Players.LocalPlayer
-   local character = player.Character or player.CharacterAdded:Wait()
-   local humanoid = character:WaitForChild("Humanoid")
-
-   game:GetService("RunService").RenderStepped:Connect(function()
-      if targetPlayer and targetPlayer.Character and humanoid and humanoid.Health > 0 then
-         local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-         local playerRoot = character:FindFirstChild("HumanoidRootPart")
-         if targetRoot and playerRoot then
-            playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -5)
-         end
-      end
-   end)
+-- Function to refresh player list
+local function refreshPlayers()
+    playerList = {}
+    for _, player in pairs(playerService:GetPlayers()) do
+        if player ~= localPlayer then
+            table.insert(playerList, player.Name)
+        end
+    end
 end
 
--- Player Control Tab
-local PlayerTab = Window:CreateTab("Local Player", "rbxassetid://4483362458")
+-- Initial Player List Refresh
+refreshPlayers()
 
--- Dropdown to list all players in the server
-local PlayerList = {}
-local PlayerDropdown
-
-local function refreshPlayerList()
-   PlayerList = {}
-   for _, player in pairs(game.Players:GetPlayers()) do
-      table.insert(PlayerList, player.Name)
-   end
-   if PlayerDropdown then
-      PlayerDropdown:UpdateOptions(PlayerList)
-   end
-end
-
-refreshPlayerList()
-
-PlayerDropdown = PlayerTab:CreateDropdown({
-   Name = "Choose Player to Follow",
-   Options = PlayerList,
-   CurrentOption = PlayerList[1] or "None", -- Default option
-   Flag = "PlayerDropdown",
-   Callback = function(selectedPlayer)
-      local targetPlayer = game.Players:FindFirstChild(selectedPlayer)
-      if targetPlayer then
-         followPlayer(targetPlayer)
-      else
-         Rayfield:Notify({
-            Title = "Player Not Found",
-            Content = "Ensure the player name is correct.",
-            Duration = 5,
-         })
-      end
-   end
-})
+-- Dropdown for Player Selection
+local selectedPlayer
+local dropdown = localPlayerTab.newDropdown("Select Player", "Choose a player to teleport to.", playerList, function(playerName)
+    selectedPlayer = playerName
+end)
 
 -- Refresh Button
-PlayerTab:CreateButton({
-   Name = "Refresh Player List",
-   Callback = function()
-      refreshPlayerList()
-      Rayfield:Notify({
-         Title = "Player List Refreshed",
-         Content = "The player list has been updated.",
-         Duration = 3,
-      })
-   end
-})
+localPlayerTab.newButton("Refresh Player List", "Updates the player list in the dropdown.", function()
+    refreshPlayers()
+    dropdown:SetOptions(playerList) -- Update dropdown options
+end)
+
+-- Teleport Button
+localPlayerTab.newButton("Teleport to Player", "Move to the selected player.", function()
+    if selectedPlayer then
+        local targetPlayer = playerService:FindFirstChild(selectedPlayer)
+        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            localPlayer.Character:MoveTo(targetPlayer.Character.HumanoidRootPart.Position)
+        else
+            warn("Player not valid or doesn't have a character.")
+        end
+    else
+        warn("No player selected.")
+    end
+end)
 
 -- Visual Tab
-local VisualTab = Window:CreateTab("Visual", "rbxassetid://4483362458")
+local visualTab = window.newTab("Visual", "Default")
 
--- Fullbright Toggle Button
-VisualTab:CreateToggle({
-   Name = "Fullbright",
-   CurrentValue = false,
-   Flag = "FullbrightToggle", 
-   Callback = function(Value)
-      if Value then
-         -- Activate Fullbright (set lighting to maximum)
-         game.Lighting.Brightness = 2
-         game.Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
-         game.Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-      else
-         -- Reset to default lighting
-         game.Lighting.Brightness = 1
-         game.Lighting.OutdoorAmbient = Color3.fromRGB(128, 128, 128)
-         game.Lighting.Ambient = Color3.fromRGB(128, 128, 128)
-      end
-   end
-})
+-- Player ESP Toggle
+visualTab.newToggle("Player ESP", "Highlight players with boxes.", false, function(state)
+    if state then
+        for _, player in pairs(playerService:GetPlayers()) do
+            if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local espBox = Instance.new("BoxHandleAdornment")
+                espBox.Adornee = player.Character.HumanoidRootPart
+                espBox.Size = Vector3.new(4, 6, 4)
+                espBox.Color3 = Color3.fromRGB(255, 0, 0)
+                espBox.AlwaysOnTop = true
+                espBox.Transparency = 0.7
+                espBox.Parent = player.Character
+                player.Character:SetAttribute("ESP", espBox) -- Save ESP for toggling off
+            end
+        end
+    else
+        for _, player in pairs(playerService:GetPlayers()) do
+            if player.Character and player.Character:GetAttribute("ESP") then
+                player.Character:GetAttribute("ESP"):Destroy()
+                player.Character:SetAttribute("ESP", nil)
+            end
+        end
+    end
+end)
 
--- Player ESP Toggle Button (Using Sense)
-VisualTab:CreateToggle({
-   Name = "Player ESP",
-   CurrentValue = false,
-   Flag = "ESPToggle", 
-   Callback = function(Value)
-      Sense.teamSettings.enemy.enabled = Value
-      if Value then
-         Sense.Load()
-      else
-         Sense.Unload()
-      end
-   end
-})
+-- Fullbright Toggle
+visualTab.newToggle("Fullbright", "Brighten the entire map.", false, function(state)
+    if state then
+        game:GetService("Lighting").Brightness = 2
+        game:GetService("Lighting").GlobalShadows = false
+        game:GetService("Lighting").Ambient = Color3.new(1, 1, 1)
+    else
+        game:GetService("Lighting").Brightness = 1
+        game:GetService("Lighting").GlobalShadows = true
+        game:GetService("Lighting").Ambient = Color3.new(0.5, 0.5, 0.5)
+    end
+end)
+
+-- Customize Theme (Optional)
+local mainColor = Color3.fromRGB(50, 50, 200)
+local secondaryColor = Color3.fromRGB(200, 50, 50)
+window:SetTheme(mainColor, secondaryColor)
