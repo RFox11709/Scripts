@@ -34,46 +34,15 @@ Sense.teamSettings = {
         boxColor = { Color3.new(1, 0, 0), 1 },
         boxOutline = true,
         boxOutlineColor = { Color3.new(0, 0, 0), 1 },
-        boxFill = false,
-        boxFillColor = { Color3.new(1, 0, 0), 0.5 },
-        healthBar = false,
-        healthyColor = Color3.new(0, 1, 0),
-        dyingColor = Color3.new(1, 0, 0),
-        healthBarOutline = true,
-        healthBarOutlineColor = { Color3.new(0, 0, 0), 0.5 },
-        healthText = false,
-        healthTextColor = { Color3.new(1, 1, 1), 1 },
-        healthTextOutline = true,
-        healthTextOutlineColor = Color3.new(),
-        box3d = false,
-        box3dColor = { Color3.new(1, 0, 0), 1 },
         name = true,
         nameColor = { Color3.new(1, 1, 1), 1 },
         nameOutline = true,
         nameOutlineColor = Color3.new(),
-        weapon = false,
-        weaponColor = { Color3.new(1, 1, 1), 1 },
-        weaponOutline = true,
-        weaponOutlineColor = Color3.new(),
-        distance = false,
-        distanceColor = { Color3.new(1, 1, 1), 1 },
-        distanceOutline = true,
-        distanceOutlineColor = Color3.new(),
         tracer = true,
         tracerOrigin = "Bottom",
         tracerColor = { Color3.new(1, 0, 0), 1 },
         tracerOutline = true,
-        tracerOutlineColor = { Color3.new(0, 0, 0), 1 },
-        offScreenArrow = true,
-        offScreenArrowColor = { Color3.new(1, 1, 1), 1 },
-        offScreenArrowSize = 15,
-        offScreenArrowRadius = 150,
-        offScreenArrowOutline = true,
-        offScreenArrowOutlineColor = { Color3.new(0, 0, 0), 1 },
-        chams = false,
-        chamsVisibleOnly = false,
-        chamsFillColor = { Color3.new(0.2, 0.2, 0.2), 0.5 },
-        chamsOutlineColor = { Color3.new(1, 0, 0), 0 }
+        tracerOutlineColor = { Color3.new(0, 0, 0), 1 }
     },
     friendly = {
         enabled = false,
@@ -81,46 +50,15 @@ Sense.teamSettings = {
         boxColor = { Color3.new(0, 1, 0), 1 },
         boxOutline = true,
         boxOutlineColor = { Color3.new(0, 0, 0), 1 },
-        boxFill = false,
-        boxFillColor = { Color3.new(0, 1, 0), 0.5 },
-        healthBar = false,
-        healthyColor = Color3.new(0, 1, 0),
-        dyingColor = Color3.new(1, 0, 0),
-        healthBarOutline = true,
-        healthBarOutlineColor = { Color3.new(0, 0, 0), 0.5 },
-        healthText = false,
-        healthTextColor = { Color3.new(1, 1, 1), 1 },
-        healthTextOutline = true,
-        healthTextOutlineColor = Color3.new(),
-        box3d = false,
-        box3dColor = { Color3.new(0, 1, 0), 1 },
         name = true,
         nameColor = { Color3.new(1, 1, 1), 1 },
         nameOutline = true,
         nameOutlineColor = Color3.new(),
-        weapon = false,
-        weaponColor = { Color3.new(1, 1, 1), 1 },
-        weaponOutline = true,
-        weaponOutlineColor = Color3.new(),
-        distance = false,
-        distanceColor = { Color3.new(1, 1, 1), 1 },
-        distanceOutline = true,
-        distanceOutlineColor = Color3.new(),
         tracer = true,
         tracerOrigin = "Bottom",
         tracerColor = { Color3.new(0, 1, 0), 1 },
         tracerOutline = true,
-        tracerOutlineColor = { Color3.new(0, 0, 0), 1 },
-        offScreenArrow = true,
-        offScreenArrowColor = { Color3.new(1, 1, 1), 1 },
-        offScreenArrowSize = 15,
-        offScreenArrowRadius = 150,
-        offScreenArrowOutline = true,
-        offScreenArrowOutlineColor = { Color3.new(0, 0, 0), 1 },
-        chams = false,
-        chamsVisibleOnly = false,
-        chamsFillColor = { Color3.new(0.2, 0.2, 0.2), 0.5 },
-        chamsOutlineColor = { Color3.new(0, 1, 0), 0 }
+        tracerOutlineColor = { Color3.new(0, 0, 0), 1 }
     }
 }
 
@@ -129,15 +67,21 @@ local PlayerTab = Window:CreateTab("Local Player", 4483362458)
 
 -- Dropdown to list all players in the server
 local PlayerList = {}
-for _, player in pairs(game.Players:GetPlayers()) do
-   table.insert(PlayerList, player.Name)
+local function refreshPlayerList()
+   PlayerList = {}
+   for _, player in pairs(game.Players:GetPlayers()) do
+      table.insert(PlayerList, player.Name)
+   end
+   PlayerDropdown:UpdateOptions(PlayerList)
 end
+
+refreshPlayerList()
 
 local PlayerDropdown = PlayerTab:CreateDropdown({
    Name = "Choose Player to Follow",
    Options = PlayerList,
    CurrentOption = PlayerList[1],  -- Default option
-   Flag = "PlayerDropdown",  -- Unique flag for saving configuration
+   Flag = "PlayerDropdown",
    Callback = function(selectedPlayer)
       selectedPlayer = game.Players:FindFirstChild(selectedPlayer)
       if selectedPlayer then
@@ -149,6 +93,19 @@ local PlayerDropdown = PlayerTab:CreateDropdown({
             Duration = 5,
          })
       end
+   end
+})
+
+-- Refresh Button
+PlayerTab:CreateButton({
+   Name = "Refresh Player List",
+   Callback = function()
+      refreshPlayerList()
+      Rayfield:Notify({
+         Title = "Player List Refreshed",
+         Content = "The player list has been updated.",
+         Duration = 3,
+      })
    end
 })
 
@@ -170,6 +127,22 @@ local FollowButton = PlayerTab:CreateButton({
    end
 })
 
+-- Utility Functions
+local function followPlayer(targetPlayer)
+   local player = game.Players.LocalPlayer
+   local character = player.Character or player.CharacterAdded:Wait()
+   local humanoid = character:WaitForChild("Humanoid")
+
+   game:GetService("RunService").RenderStepped:Connect(function()
+      if targetPlayer and targetPlayer.Character and humanoid and humanoid.Health > 0 then
+         local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+         local playerRoot = character:FindFirstChild("HumanoidRootPart")
+         if targetRoot and playerRoot then
+            playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -5)
+         end
+      end
+   end)
+end
 
 -- Visual Tab
 local VisualTab = Window:CreateTab("Visual", 4483362458)
