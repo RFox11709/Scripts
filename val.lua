@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 -- Creating the main Window
 local Window = Rayfield:CreateWindow({
    Name = "Val",
-   Icon = 0,
+   Icon = "rbxassetid://4483362458", -- Replace with a valid icon asset ID
    LoadingTitle = "Loading...",
    LoadingSubtitle = "Powered by Rayfield",
    Theme = "Default",
@@ -62,30 +62,51 @@ Sense.teamSettings = {
     }
 }
 
+-- Utility Function: Follow Player
+local function followPlayer(targetPlayer)
+   local player = game.Players.LocalPlayer
+   local character = player.Character or player.CharacterAdded:Wait()
+   local humanoid = character:WaitForChild("Humanoid")
+
+   game:GetService("RunService").RenderStepped:Connect(function()
+      if targetPlayer and targetPlayer.Character and humanoid and humanoid.Health > 0 then
+         local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+         local playerRoot = character:FindFirstChild("HumanoidRootPart")
+         if targetRoot and playerRoot then
+            playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -5)
+         end
+      end
+   end)
+end
+
 -- Player Control Tab
-local PlayerTab = Window:CreateTab("Local Player", 4483362458)
+local PlayerTab = Window:CreateTab("Local Player", "rbxassetid://4483362458")
 
 -- Dropdown to list all players in the server
 local PlayerList = {}
+local PlayerDropdown
+
 local function refreshPlayerList()
    PlayerList = {}
    for _, player in pairs(game.Players:GetPlayers()) do
       table.insert(PlayerList, player.Name)
    end
-   PlayerDropdown:UpdateOptions(PlayerList)
+   if PlayerDropdown then
+      PlayerDropdown:UpdateOptions(PlayerList)
+   end
 end
 
 refreshPlayerList()
 
-local PlayerDropdown = PlayerTab:CreateDropdown({
+PlayerDropdown = PlayerTab:CreateDropdown({
    Name = "Choose Player to Follow",
    Options = PlayerList,
-   CurrentOption = PlayerList[1],  -- Default option
+   CurrentOption = PlayerList[1] or "None", -- Default option
    Flag = "PlayerDropdown",
    Callback = function(selectedPlayer)
-      selectedPlayer = game.Players:FindFirstChild(selectedPlayer)
-      if selectedPlayer then
-         followPlayer(selectedPlayer)
+      local targetPlayer = game.Players:FindFirstChild(selectedPlayer)
+      if targetPlayer then
+         followPlayer(targetPlayer)
       else
          Rayfield:Notify({
             Title = "Player Not Found",
@@ -109,46 +130,11 @@ PlayerTab:CreateButton({
    end
 })
 
--- Follow Button
-local FollowButton = PlayerTab:CreateButton({
-   Name = "Teleport and Follow",
-   Callback = function()
-      local selectedPlayer = PlayerDropdown:GetSelectedOption()
-      local targetPlayer = game.Players:FindFirstChild(selectedPlayer)
-      if targetPlayer then
-         followPlayer(targetPlayer)
-      else
-         Rayfield:Notify({
-            Title = "Error",
-            Content = "Something went wrong! Player may not exist.",
-            Duration = 5,
-         })
-      end
-   end
-})
-
--- Utility Functions
-local function followPlayer(targetPlayer)
-   local player = game.Players.LocalPlayer
-   local character = player.Character or player.CharacterAdded:Wait()
-   local humanoid = character:WaitForChild("Humanoid")
-
-   game:GetService("RunService").RenderStepped:Connect(function()
-      if targetPlayer and targetPlayer.Character and humanoid and humanoid.Health > 0 then
-         local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-         local playerRoot = character:FindFirstChild("HumanoidRootPart")
-         if targetRoot and playerRoot then
-            playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -5)
-         end
-      end
-   end)
-end
-
 -- Visual Tab
-local VisualTab = Window:CreateTab("Visual", 4483362458)
+local VisualTab = Window:CreateTab("Visual", "rbxassetid://4483362458")
 
 -- Fullbright Toggle Button
-local FullbrightToggle = VisualTab:CreateToggle({
+VisualTab:CreateToggle({
    Name = "Fullbright",
    CurrentValue = false,
    Flag = "FullbrightToggle", 
@@ -168,17 +154,12 @@ local FullbrightToggle = VisualTab:CreateToggle({
 })
 
 -- Player ESP Toggle Button (Using Sense)
-local ESPToggle = VisualTab:CreateToggle({
+VisualTab:CreateToggle({
    Name = "Player ESP",
    CurrentValue = false,
    Flag = "ESPToggle", 
    Callback = function(Value)
-      -- Update ESP configuration based on toggle
       Sense.teamSettings.enemy.enabled = Value
-      Sense.teamSettings.enemy.box = true
-      Sense.teamSettings.enemy.boxColor = { Color3.new(1, 0, 0), 1 }
-      
-      -- Load or unload the ESP based on the toggle value
       if Value then
          Sense.Load()
       else
@@ -186,25 +167,3 @@ local ESPToggle = VisualTab:CreateToggle({
       end
    end
 })
-
--- Insert this at the end of your current script
-
--- Utility Functions
-local function followPlayer(targetPlayer)
-   local player = game.Players.LocalPlayer
-   local character = player.Character or player.CharacterAdded:Wait()
-   local humanoid = character:WaitForChild("Humanoid")
-
-   game:GetService("RunService").RenderStepped:Connect(function()
-      if targetPlayer and targetPlayer.Character and humanoid and humanoid.Health > 0 then
-         local targetRoot = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-         local playerRoot = character:FindFirstChild("HumanoidRootPart")
-         if targetRoot and playerRoot then
-            playerRoot.CFrame = targetRoot.CFrame * CFrame.new(0, 0, -5)
-         end
-      end
-   end)
-end
-
--- Done integrating!
-
