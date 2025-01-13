@@ -22,52 +22,6 @@ visualTab.newToggle("Fullbright", "Toggle full brightness and shadows.", true, f
     end
 end)
 
-local Lighting = game:GetService("Lighting")
-
--- Bloom Effect Toggle
-visualTab.newToggle("Bloom Effect", "Toggle Bloom (makes everything glow)", false, function(toggleState)
-    if toggleState then
-        local bloom = Instance.new("BloomEffect", Lighting)
-        bloom.Name = "CustomBloom"
-        bloom.Intensity = 4 -- Customize as needed
-        bloom.Size = 56
-        bloom.Threshold = 1
-    else
-        if Lighting:FindFirstChild("CustomBloom") then
-            Lighting.CustomBloom:Destroy()
-        end
-    end
-end)
-
--- ColorCorrection Toggle
-visualTab.newToggle("Color Correction", "Toggle Color Correction (adjusts saturation & contrast)", false, function(toggleState)
-    if toggleState then
-        local cc = Instance.new("ColorCorrectionEffect", Lighting)
-        cc.Name = "CustomCC"
-        cc.Brightness = 0.1
-        cc.Contrast = 0.3
-        cc.Saturation = 1.5
-    else
-        if Lighting:FindFirstChild("CustomCC") then
-            Lighting.CustomCC:Destroy()
-        end
-    end
-end)
-
--- SunRays Toggle
-visualTab.newToggle("Sun Rays", "Toggle Sun Rays (adds light beams from the sun)", false, function(toggleState)
-    if toggleState then
-        local sunRays = Instance.new("SunRaysEffect", Lighting)
-        sunRays.Name = "CustomSunRays"
-        sunRays.Intensity = 1 -- Adjust as needed
-        sunRays.Spread = 0.5
-    else
-        if Lighting:FindFirstChild("CustomSunRays") then
-            Lighting.CustomSunRays:Destroy()
-        end
-    end
-end)
-
 -- Create the "Player" tab
 local playerTab = DrRayLibrary.newTab("Player", "ImageIdLogoHere")
 
@@ -115,5 +69,32 @@ playerTab.newButton("Teleport to Player", "Move to the selected player.", functi
         end
     else
         warn("No player selected.")
+    end
+end)
+
+-- Teleport to "Port" button
+playerTab.newButton("Teleport to Port", "Move to the 'Port' model slowly.", function()
+    local targetModel = workspace:FindFirstChild("Port")
+    if targetModel and targetModel:FindFirstChild("PrimaryPart") then
+        local humanoidRootPart = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if humanoidRootPart then
+            local function moveToTarget(targetPos)
+                local stepTime = 0.05
+                local speed = 5 -- Adjust movement speed
+                local distance = (humanoidRootPart.Position - targetPos).Magnitude
+                local totalSteps = math.floor(distance / speed)
+                for i = 1, totalSteps do
+                    humanoidRootPart.CFrame = humanoidRootPart.CFrame:Lerp(CFrame.new(targetPos), 0.1)
+                    task.wait(stepTime)
+                end
+                humanoidRootPart.CFrame = CFrame.new(targetPos)
+            end
+
+            moveToTarget(targetModel.PrimaryPart.Position)
+        else
+            warn("HumanoidRootPart not found!")
+        end
+    else
+        warn("'Port' model not found or doesn't have a PrimaryPart.")
     end
 end)
